@@ -1,0 +1,40 @@
+// Configuração do Cloudflare Worker. Documentação: https://developers.cloudflare.com/workers/wrangler/configuration/
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "site-institucional",
+  // Saída do `ng build` (o Angular gera o Worker em dist/site-ssr/server/server.mjs).
+  "main": "dist/site-ssr/server/server.mjs",
+  // `wrangler dev` e `wrangler deploy` executam o build do Angular antes (e o dev refaz ao salvar).
+  "build": { "command": "npm run build", "watch_dir": ["src", "public"] },
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // O bundle do Angular contém `createRequire(import.meta.url)`; no Workers import.meta.url não existe.
+  "define": { "import.meta.url": "\"file:///bundle/server.mjs\"" },
+
+  // JS, CSS, fontes e imagens do build são servidos direto pela rede do Cloudflare.
+  // O que não for arquivo cai no Worker (SSR, API, /uploads).
+  "assets": { "directory": "dist/site-ssr/browser" },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "site-institucional",
+      // Substitua pelo id exibido em `npx wrangler d1 create site-institucional`.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "site-institucional-media" }],
+
+  "vars": {
+    "ENVIRONMENT": "production",
+    // Domínio público, ex.: https://www.queijosdaserra.com.br (canônicas, sitemap, hosts aceitos pelo SSR).
+    "PUBLIC_SITE_URL": "",
+    "ALLOWED_HOSTS": "",
+    "SEED_DEMO": "false"
+  },
+  // Secrets (não ficam no repositório): npx wrangler secret put ADMIN_EMAIL / ADMIN_PASSWORD
+
+  "observability": { "enabled": true }
+}
