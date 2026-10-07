@@ -1,0 +1,42 @@
+// Configuração do Cloudflare Worker. Documentação: https://developers.cloudflare.com/workers/wrangler/configuration/
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Precisa ser igual ao nome do Worker no painel da Cloudflare (Workers Builds compara os dois).
+  "name": "site-claudeflare",
+  // Saída do `ng build` (o Angular gera o Worker em dist/site-ssr/server/server.mjs).
+  "main": "dist/site-ssr/server/server.mjs",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // O bundle do Angular contém `createRequire(import.meta.url)`; no Workers import.meta.url não existe.
+  "define": { "import.meta.url": "\"file:///bundle/server.mjs\"" },
+
+  // JS, CSS, fontes e imagens do build são servidos direto pela rede do Cloudflare.
+  // O que não for arquivo cai no Worker (SSR, API, /uploads).
+  "assets": { "directory": "dist/site-ssr/browser" },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "site-institucional",
+      // Sem "database_id": no deploy o wrangler conecta ao banco com este nome ou o cria.
+      // Se preferir fixar, cole aqui o id exibido no painel (D1) ou em `npx wrangler d1 create`.
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Imagens: SEM bucket R2, ficam no próprio D1 (até ~1,5 MB por imagem) — bom para testar.
+  // Para usar o R2 (recomendado em produção): ative o R2, crie o bucket e descomente a linha abaixo.
+  // "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "site-institucional-media" }],
+
+  "vars": {
+    "ENVIRONMENT": "production",
+    // Domínio público, ex.: https://www.queijosdaserra.com.br (canônicas, sitemap, hosts aceitos pelo SSR).
+    // Vazio: o site funciona no endereço *.workers.dev. Preencha ao configurar o domínio próprio.
+    "PUBLIC_SITE_URL": "",
+    "ALLOWED_HOSTS": "",
+    "SEED_DEMO": "false"
+  },
+  // Secrets (não ficam no repositório): npx wrangler secret put ADMIN_EMAIL / ADMIN_PASSWORD
+
+  "observability": { "enabled": true }
+}

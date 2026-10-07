@@ -1,0 +1,6 @@
+# Variáveis para `npm run dev` (wrangler dev). Copie para .dev.vars — não versione.
+ENVIRONMENT=development
+SEED_DEMO=true
+ADMIN_EMAIL=admin@exemplo.com.br
+ADMIN_NAME=Administrador
+ADMIN_PASSWORD=Troque-Esta-Senha-123
