@@ -27,7 +27,6 @@
   // Imagens: SEM bucket R2, ficam no próprio D1 (até ~1,5 MB por imagem) — bom para testar.
   // Para usar o R2 (recomendado em produção): ative o R2, crie o bucket e descomente a linha abaixo.
   // "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "site-institucional-media" }],
-  //
 
   "vars": {
     "ENVIRONMENT": "production",
